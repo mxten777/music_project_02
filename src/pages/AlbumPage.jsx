@@ -1,63 +1,109 @@
 
-import React from "react";
-import samplePoems from "../utils/sample_poems.json";
-import SongPlayer from "../components/SongPlayer";
+import { useState } from 'react'
+import { AlbumProvider } from '../contexts/AlbumContext'
+import AlbumManager from '../components/AlbumManager'
+import SongManager from '../components/SongManager'
 
 export default function AlbumPage() {
+  const [activeTab, setActiveTab] = useState('albums')
+
+  const tabs = [
+    { id: 'albums', label: '앨범 관리', icon: 'fas fa-compact-disc' },
+    { id: 'songs', label: '곡 관리', icon: 'fas fa-music' }
+  ]
+
   return (
-    <main className="flex justify-center items-start min-h-[60vh] py-8 sm:py-12 px-2 bg-gradient-to-br from-white via-blue-50 to-cyan-100" aria-label="앨범 곡 리스트 메인 영역">
-      <section className="w-full max-w-2xl">
-        <h1 className="text-2xl sm:text-3xl font-extrabold mb-6 sm:mb-8 text-center text-blue-700 drop-shadow" tabIndex={0} aria-label="나의 앨범 샘플">
-          나의 앨범 <span className="text-base font-normal text-blue-400">(샘플)</span>
-        </h1>
-        <div className="flex flex-col gap-6">
-          {samplePoems.map((song, idx) => (
-            <article
-              key={idx}
-              className="rounded-2xl shadow-xl bg-gradient-to-br from-white via-blue-50 to-cyan-50 border border-blue-100 px-4 sm:px-6 py-4 sm:py-5 flex flex-col gap-2 transition-transform duration-200 hover:scale-[1.025] hover:shadow-2xl cursor-pointer"
-              tabIndex={0}
-              aria-label={`곡 카드: ${song.title}`}
-            >
-              <div className="flex items-center justify-between mb-1">
-                <span className="font-bold text-lg text-blue-700 truncate max-w-[70%] flex items-center gap-1">
-                  <svg className="w-5 h-5 text-blue-400 inline-block -mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M9 18V5l9-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="16" cy="16" r="3"/></svg>
-                  {song.title}
-                </span>
-                <span
-                  className={
-                    "text-xs px-3 py-1 rounded-full font-semibold shadow-sm flex items-center gap-1 " +
-                    (song.style === "ballad"
-                      ? "bg-gradient-to-r from-blue-200 to-blue-400 text-blue-800"
-                      : "bg-gradient-to-r from-cyan-200 to-cyan-400 text-cyan-900")
-                  }
-                  aria-label={`곡 스타일: ${song.style === "ballad" ? "발라드" : "엔카"}`}
-                >
-                  <svg className="w-4 h-4 inline-block mr-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M9 18V5l9-2v13"/></svg>
-                  {song.style === "ballad" ? "발라드" : "엔카"}
-                </span>
+    <AlbumProvider>
+      <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 dark:from-gray-900 dark:via-primary-900 dark:to-secondary-900">
+        {/* 헤더 */}
+        <div className="glass-header sticky top-0 z-50 backdrop-blur-md border-b border-primary-200/30 dark:border-primary-700/30">
+          <div className="max-w-7xl mx-auto px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-lg flex items-center justify-center">
+                  <i className="fas fa-compact-disc text-white text-lg"></i>
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold text-primary-900 dark:text-white">
+                    앨범 & 곡 관리
+                  </h1>
+                  <p className="text-primary-600 dark:text-primary-400 text-sm">
+                    음악 앨범과 곡을 생성하고 관리하세요
+                  </p>
+                </div>
               </div>
-              <pre className="whitespace-pre-wrap text-gray-700 text-[1.05rem] leading-relaxed mb-1 font-sans break-words">{song.text}</pre>
-              <div className="flex items-center gap-3 text-xs text-gray-500 mt-1">
-                {song.date && (
-                  <span className="flex items-center gap-1" aria-label={`작성일: ${song.date}`}>
-                    <svg className="w-4 h-4 text-blue-300" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                    {song.date}
-                  </span>
-                )}
-                {song.duration && (
-                  <span className="flex items-center gap-1" aria-label={`길이: ${Math.floor(song.duration / 60)}분 ${(song.duration % 60).toString().padStart(2, '0')}초`}>
-                    <svg className="w-4 h-4 text-blue-300" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
-                    {Math.floor(song.duration / 60)}:{(song.duration % 60).toString().padStart(2, '0')}
-                  </span>
-                )}
+              
+              {/* 탭 네비게이션 */}
+              <div className="flex bg-white/50 dark:bg-gray-800/50 rounded-xl p-1 backdrop-blur-sm">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2 ${
+                      activeTab === tab.id
+                        ? 'bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-400 shadow-lg'
+                        : 'text-primary-500 dark:text-primary-400 hover:text-primary-600 dark:hover:text-primary-300'
+                    }`}
+                  >
+                    <i className={`${tab.icon} text-sm`}></i>
+                    <span>{tab.label}</span>
+                  </button>
+                ))}
               </div>
-              <div className="flex items-center gap-2 mt-2">
-                <SongPlayer title={song.title} />
-              </div>
-            </article>
-          ))}
+            </div>
+          </div>
         </div>
-      </section>
-    </main>
-  );
+
+        {/* 메인 콘텐츠 */}
+        <div className="pt-8">
+          {activeTab === 'albums' && <AlbumManager />}
+          {activeTab === 'songs' && <SongManager />}
+        </div>
+
+        {/* 플로팅 액션 버튼 */}
+        <div className="fixed bottom-8 right-8 flex flex-col space-y-3">
+          <button 
+            onClick={() => setActiveTab('albums')} 
+            className={`w-14 h-14 rounded-full shadow-xl transition-all duration-300 flex items-center justify-center ${
+              activeTab === 'albums' 
+                ? 'bg-primary-500 text-white scale-110' 
+                : 'bg-white dark:bg-gray-700 text-primary-500 dark:text-primary-400 hover:scale-105'
+            }`}
+            title="앨범 관리"
+          >
+            <i className="fas fa-compact-disc"></i>
+          </button>
+          <button 
+            onClick={() => setActiveTab('songs')} 
+            className={`w-14 h-14 rounded-full shadow-xl transition-all duration-300 flex items-center justify-center ${
+              activeTab === 'songs' 
+                ? 'bg-secondary-500 text-white scale-110' 
+                : 'bg-white dark:bg-gray-700 text-secondary-500 dark:text-secondary-400 hover:scale-105'
+            }`}
+            title="곡 관리"
+          >
+            <i className="fas fa-music"></i>
+          </button>
+        </div>
+
+        {/* 키보드 단축키 힌트 */}
+        <div className="fixed bottom-8 left-8 glass-card p-4 rounded-lg text-sm text-primary-600 dark:text-primary-400">
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-1">
+              <kbd className="px-2 py-1 bg-primary-100 dark:bg-primary-800 rounded text-xs">Alt</kbd>
+              <span>+</span>
+              <kbd className="px-2 py-1 bg-primary-100 dark:bg-primary-800 rounded text-xs">1</kbd>
+              <span className="ml-2">앨범</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <kbd className="px-2 py-1 bg-primary-100 dark:bg-primary-800 rounded text-xs">Alt</kbd>
+              <span>+</span>
+              <kbd className="px-2 py-1 bg-primary-100 dark:bg-primary-800 rounded text-xs">2</kbd>
+              <span className="ml-2">곡</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </AlbumProvider>
+  )
 }

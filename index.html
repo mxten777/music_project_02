@@ -1,10 +1,70 @@
 <!doctype html>
-<html lang="en">
+<html lang="ko">
   <head>
     <meta charset="UTF-8" />
+    
+    <!-- PWA Meta Tags -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="뮤직코딩" />
+    <meta name="application-name" content="뮤직코딩" />
+    <meta name="msapplication-TileColor" content="#8b5cf6" />
+    <meta name="theme-color" content="#8b5cf6" />
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- Icons -->
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/images/icon-192x192.png" />
+    <link rel="mask-icon" href="/images/icon-192x192.png" color="#8b5cf6" />
+    
+    <!-- SEO Meta Tags -->
+    <title>뮤직코딩 - AI 음악 창작 스튜디오</title>
+    <meta name="description" content="시를 음악으로 변환하는 AI 기반 프리미엄 음악 창작 플랫폼. 협업, 전문 편집, 분석까지 모든 기능을 제공합니다." />
+    <meta name="keywords" content="AI 음악, 시, 음악 창작, 협업, 프리미엄 오디오, 분석 대시보드, PWA" />
+    <meta name="author" content="뮤직코딩" />
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="뮤직코딩 - AI 음악 창작 스튜디오" />
+    <meta property="og:description" content="시를 음악으로 변환하는 AI 기반 프리미엄 음악 창작 플랫폼" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://musicoding.vercel.app" />
+    <meta property="og:image" content="/images/og-image.png" />
+    <meta property="og:site_name" content="뮤직코딩" />
+    <meta property="og:locale" content="ko_KR" />
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="뮤직코딩 - AI 음악 창작 스튜디오" />
+    <meta name="twitter:description" content="시를 음악으로 변환하는 AI 기반 프리미엄 음악 창작 플랫폼" />
+    <meta name="twitter:image" content="/images/twitter-card.png" />
+    
+    <!-- Performance & Security -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="referrer" content="no-referrer-when-downgrade" />
+    <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com" />
+    
+    <!-- Premium Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&family=Poppins:wght@100;200;300;400;500;600;700;800;900&family=JetBrains+Mono:wght@100;200;300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Splash Screens for iOS -->
+    <link rel="apple-touch-startup-image" href="/images/splash-640x1136.png" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)" />
+    <link rel="apple-touch-startup-image" href="/images/splash-750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" />
+    <link rel="apple-touch-startup-image" href="/images/splash-1242x2208.png" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3)" />
+    <link rel="apple-touch-startup-image" href="/images/splash-1125x2436.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)" />
+    <link rel="apple-touch-startup-image" href="/images/splash-1536x2048.png" media="(min-device-width: 768px) and (max-device-width: 1024px) and (orientation: portrait) and (-webkit-min-device-pixel-ratio: 2)" />
+    <link rel="apple-touch-startup-image" href="/images/splash-2048x1536.png" media="(min-device-width: 768px) and (max-device-width: 1024px) and (orientation: landscape) and (-webkit-min-device-pixel-ratio: 2)" />
   </head>
   <body>
     <div id="root"></div>
