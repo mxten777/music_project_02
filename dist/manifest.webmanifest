@@ -1,0 +1,1 @@
+{"name":"뮤직코딩 - AI 음악 창작 스튜디오","short_name":"뮤직코딩","description":"시를 음악으로 변환하는 AI 기반 프리미엄 음악 창작 플랫폼","start_url":"/","display":"standalone","background_color":"#0f0f23","theme_color":"#8b5cf6","lang":"en","scope":"/","orientation":"portrait","icons":[{"src":"vite.svg","sizes":"192x192","type":"image/svg+xml","purpose":"any"}],"categories":["music","entertainment","productivity"]}

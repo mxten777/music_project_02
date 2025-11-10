@@ -1,0 +1,124 @@
+{
+  "name": "뮤직코딩 - AI 음악 창작 스튜디오",
+  "short_name": "뮤직코딩",
+  "description": "시를 음악으로 만드는 AI 기반 프리미엄 음악 창작 플랫폼",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f0f23",
+  "theme_color": "#8b5cf6",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "ko",
+  "icons": [
+    {
+      "src": "/images/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/images/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/images/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/images/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/images/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/images/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/images/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/images/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/images/screenshot-mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "/images/screenshot-desktop.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ],
+  "categories": ["music", "entertainment", "productivity"],
+  "shortcuts": [
+    {
+      "name": "새 곡 만들기",
+      "short_name": "새 곡",
+      "description": "시를 입력해서 새로운 곡을 만듭니다",
+      "url": "/?action=create",
+      "icons": [
+        {
+          "src": "/images/shortcut-create.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "내 앨범",
+      "short_name": "앨범",
+      "description": "내가 만든 음악 앨범을 확인합니다",
+      "url": "/?page=album",
+      "icons": [
+        {
+          "src": "/images/shortcut-album.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "분석 대시보드",
+      "short_name": "분석",
+      "description": "음악 성과와 트렌드를 분석합니다",
+      "url": "/?page=analytics",
+      "icons": [
+        {
+          "src": "/images/shortcut-analytics.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "handle_links": "preferred",
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  }
+}

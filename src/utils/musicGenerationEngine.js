@@ -1,4 +1,6 @@
 // 고급 음악 생성 AI 엔진
+import { MusicUtils } from './musicUtils.js';
+
 export class MusicGenerationEngine {
   constructor() {
     this.initialized = false;
@@ -407,51 +409,340 @@ export class MusicGenerationEngine {
     };
   }
 
-  // 기타 메서드들은 다음 파일에서 계속...
+  // 코드 진행 생성
+  generateChordProgression(progressionType, key, structure) {
+    const progressions = this.musicTheory.progressions;
+    const baseProgression = progressions[progressionType] || progressions.ballad;
+    
+    // 키에 맞는 코드 생성
+    const keyChords = this.generateKeyChords(key);
+    
+    // 구조에 맞춰 코드 진행 확장
+    let fullProgression = [];
+    structure.forEach(section => {
+      const sectionChords = this.adaptProgressionToSection(baseProgression, section.type, keyChords);
+      fullProgression.push({
+        section: section.type,
+        chords: sectionChords,
+        measures: section.lines.length * 2 // 한 줄당 2마디 기본
+      });
+    });
+    
+    return fullProgression;
+  }
+
+  // 키별 코드 생성
+  generateKeyChords(key) {
+    const chromaticScale = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    const keyIndex = chromaticScale.indexOf(key);
+    const majorScale = [0, 2, 4, 5, 7, 9, 11]; // 장조 간격
+    
+    const scaleNotes = majorScale.map(interval => 
+      chromaticScale[(keyIndex + interval) % 12]
+    );
+    
+    return {
+      'I': { root: scaleNotes[0], type: 'major', notes: [scaleNotes[0], scaleNotes[2], scaleNotes[4]] },
+      'ii': { root: scaleNotes[1], type: 'minor', notes: [scaleNotes[1], scaleNotes[3], scaleNotes[5]] },
+      'iii': { root: scaleNotes[2], type: 'minor', notes: [scaleNotes[2], scaleNotes[4], scaleNotes[6]] },
+      'IV': { root: scaleNotes[3], type: 'major', notes: [scaleNotes[3], scaleNotes[5], scaleNotes[0]] },
+      'V': { root: scaleNotes[4], type: 'major', notes: [scaleNotes[4], scaleNotes[6], scaleNotes[1]] },
+      'vi': { root: scaleNotes[5], type: 'minor', notes: [scaleNotes[5], scaleNotes[0], scaleNotes[2]] },
+      'vii': { root: scaleNotes[6], type: 'diminished', notes: [scaleNotes[6], scaleNotes[1], scaleNotes[3]] }
+    };
+  }
+
+  // 섹션별 코드 진행 적응
+  adaptProgressionToSection(baseProgression, sectionType, keyChords) {
+    const sectionVariations = {
+      verse: baseProgression,
+      chorus: baseProgression.map(chord => chord), // 같은 진행
+      bridge: ['vi', 'IV', 'I', 'V'], // 브릿지용 변형
+      intro: [baseProgression[0]], // 첫 코드만
+      outro: [...baseProgression, 'I'] // 마지막에 I 코드 추가
+    };
+    
+    const progression = sectionVariations[sectionType] || baseProgression;
+    return progression.map(chordSymbol => keyChords[chordSymbol] || keyChords['I']);
+  }
+
+  // 멜로디 생성
+  generateMelody(lyricsAnalysis, chordProgression, musicParams, key) {
+    const scale = this.musicTheory.scales[musicParams.scale] || this.musicTheory.scales.major;
+    const rootNote = key;
+    
+    let melody = [];
+    
+    lyricsAnalysis.structure.forEach((section, sectionIndex) => {
+      const sectionChords = chordProgression[sectionIndex]?.chords || [];
+      
+      section.lines.forEach((line, lineIndex) => {
+        const syllablePattern = lyricsAnalysis.syllablePattern[section.startIndex + lineIndex];
+        if (!syllablePattern) return;
+        
+        const melodicPhrase = this.generateMelodicPhrase(
+          syllablePattern,
+          sectionChords,
+          scale,
+          rootNote,
+          musicParams
+        );
+        
+        melody.push({
+          section: section.type,
+          line: lineIndex,
+          phrase: melodicPhrase,
+          lyrics: line
+        });
+      });
+    });
+    
+    return melody;
+  }
+
+  // 멜로디 구문 생성
+  generateMelodicPhrase(syllablePattern, chords, scale, rootNote, musicParams) {
+    const notes = [];
+    const scaleNotes = this.generateScaleNotes(rootNote, scale, 2); // 2옥타브
+    
+    syllablePattern.rhythm.forEach((rhythmUnit, index) => {
+      const chordIndex = Math.floor(index / 4) % chords.length;
+      const currentChord = chords[chordIndex];
+      
+      // 코드 톤을 기반으로 멜로디 노트 선택
+      const chordTones = currentChord ? currentChord.notes : [rootNote];
+      const availableNotes = [...chordTones, ...scaleNotes];
+      
+      // 감정과 장르에 따른 음역 및 간격 조정
+      const noteRange = this.determineNoteRange(musicParams.emotion, index, syllablePattern.rhythm.length);
+      const selectedNote = this.selectMelodicNote(availableNotes, noteRange, rhythmUnit.stress);
+      
+      notes.push({
+        note: selectedNote,
+        duration: this.calculateNoteDuration(rhythmUnit, musicParams.tempo),
+        syllable: rhythmUnit.syllables,
+        stress: rhythmUnit.stress,
+        chordContext: currentChord
+      });
+    });
+    
+    return notes;
+  }
+
+  // 스케일 노트 생성
+  generateScaleNotes(rootNote, scale, octaves = 2) {
+    const chromaticScale = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    const rootIndex = chromaticScale.indexOf(rootNote);
+    let notes = [];
+    
+    for (let octave = 3; octave <= 3 + octaves; octave++) {
+      scale.forEach(interval => {
+        const noteIndex = (rootIndex + interval) % 12;
+        notes.push({
+          note: chromaticScale[noteIndex],
+          octave: octave,
+          frequency: MusicUtils.noteToFrequency(chromaticScale[noteIndex], octave)
+        });
+      });
+    }
+    
+    return notes;
+  }
+
+  // 음역 결정
+  determineNoteRange(emotion, position, totalLength) {
+    const ranges = {
+      happy: { min: 0.4, max: 0.8 }, // 중고음역
+      sad: { min: 0.2, max: 0.6 }, // 중저음역
+      romantic: { min: 0.3, max: 0.7 }, // 중음역
+      energetic: { min: 0.5, max: 0.9 }, // 고음역
+      peaceful: { min: 0.2, max: 0.5 } // 저음역
+    };
+    
+    const baseRange = ranges[emotion] || ranges.romantic;
+    
+    // 위치에 따른 음역 변화 (곡의 클라이맥스 고려)
+    const positionFactor = Math.sin((position / totalLength) * Math.PI); // 중간에서 높아짐
+    
+    return {
+      min: baseRange.min + (positionFactor * 0.1),
+      max: baseRange.max + (positionFactor * 0.1)
+    };
+  }
+
+  // 멜로디 노트 선택
+  selectMelodicNote(availableNotes, range, stress) {
+    const rangedNotes = availableNotes.filter(note => {
+      const normalizedPitch = (note.octave - 3) / 3; // 3-6옥타브를 0-1로 정규화
+      return normalizedPitch >= range.min && normalizedPitch <= range.max;
+    });
+    
+    if (rangedNotes.length === 0) return availableNotes[0];
+    
+    // 강세에 따른 노트 선택
+    if (stress > 0.7) {
+      // 강세가 강하면 상대적으로 높은 음
+      return rangedNotes[Math.floor(rangedNotes.length * 0.7)];
+    } else {
+      // 약한 강세면 중간 음역
+      return rangedNotes[Math.floor(rangedNotes.length * 0.4)];
+    }
+  }
+
+  // 음표 길이 계산
+  calculateNoteDuration(rhythmUnit, tempo) {
+    const baseDuration = MusicUtils.bpmToMs(tempo, 8); // 8분음표 기준
+    const syllableWeight = Math.max(0.5, rhythmUnit.syllables / 3);
+    return baseDuration * syllableWeight;
+  }
+
+  // 리듬 패턴 생성
+  generateRhythmPattern(genre, tempo, syllablePattern) {
+    const genrePatterns = {
+      ballad: { pattern: [1, 0, 0.5, 0, 0.8, 0, 0.5, 0], accent: [1, 3, 5] },
+      pop: { pattern: [1, 0, 1, 0, 1, 0, 1, 0], accent: [1, 3] },
+      rock: { pattern: [1, 0.5, 1, 0.5, 1, 0.5, 1, 0.5], accent: [1, 3] },
+      jazz: { pattern: [1, 0, 0.7, 0.3, 0.8, 0, 0.6, 0.4], accent: [1, 2, 4] },
+      folk: { pattern: [1, 0, 0.6, 0, 0.8, 0.4, 0.6, 0], accent: [1, 5] }
+    };
+    
+    const basePattern = genrePatterns[genre] || genrePatterns.ballad;
+    
+    return {
+      genre,
+      tempo,
+      pattern: basePattern.pattern,
+      accents: basePattern.accent,
+      measures: this.generateMeasures(syllablePattern, basePattern),
+      timeSignature: '4/4' // 기본 박자
+    };
+  }
+
+  // 마디 생성
+  generateMeasures(syllablePattern, rhythmPattern) {
+    return syllablePattern.map(pattern => ({
+      beats: 4,
+      subdivisions: rhythmPattern.pattern,
+      syllableCount: pattern.syllables,
+      wordCount: pattern.words
+    }));
+  }
+
+  // 악기 편성 선택
+  selectInstrumentation(genre) {
+    const instrumentations = {
+      ballad: {
+        lead: ['피아노', '어쿠스틱 기타'],
+        harmony: ['스트링 섹션', '패드'],
+        rhythm: ['소프트 드럼', '베이스'],
+        texture: ['리버브', '코러스']
+      },
+      pop: {
+        lead: ['신스 리드', '일렉트릭 피아노'],
+        harmony: ['신스 패드', '백킹 보컬'],
+        rhythm: ['드럼킷', '베이스 기타'],
+        texture: ['컴프레서', '이큐얼라이저']
+      },
+      rock: {
+        lead: ['일렉트릭 기타', '보컬'],
+        harmony: ['파워 코드', '오르간'],
+        rhythm: ['록 드럼', '베이스 기타'],
+        texture: ['디스토션', '딜레이']
+      },
+      jazz: {
+        lead: ['색소폰', '트럼펫'],
+        harmony: ['재즈 피아노', '기타'],
+        rhythm: ['브러시 드럼', '업라이트 베이스'],
+        texture: ['리버브', '코러스']
+      },
+      folk: {
+        lead: ['어쿠스틱 기타', '하모니카'],
+        harmony: ['스트링', '어쿠스틱 피아노'],
+        rhythm: ['카혼', '베이스'],
+        texture: ['자연스러운 잔향']
+      }
+    };
+    
+    return instrumentations[genre] || instrumentations.ballad;
+  }
+
+  // 곡 길이 계산
+  calculateDuration(lyricsAnalysis, tempo) {
+    const totalSyllables = lyricsAnalysis.syllableCount;
+    const avgSyllablesPerMinute = tempo * 2; // 대략적인 추정
+    const estimatedMinutes = totalSyllables / avgSyllablesPerMinute;
+    
+    // 구조적 요소 고려 (인트로, 아웃트로, 간주 등)
+    const structuralAddition = lyricsAnalysis.structure.length * 0.5; // 섹션당 30초 추가
+    
+    return Math.max(2, Math.round((estimatedMinutes + structuralAddition) * 60)); // 초 단위, 최소 2분
+  }
+
+  // 음악 재생
+  async playGeneratedMusic(musicData) {
+    if (!this.initialized || !this.audioContext) {
+      console.error('음악 생성 엔진이 초기화되지 않았습니다.');
+      return false;
+    }
+
+    try {
+      this.stopCurrentMusic();
+      
+      // 간단한 멜로디 재생 구현
+      let startTime = this.audioContext.currentTime;
+      
+      musicData.melody.forEach(section => {
+        section.phrase.forEach(note => {
+          const oscillator = this.audioContext.createOscillator();
+          const gainNode = this.audioContext.createGain();
+          
+          oscillator.frequency.setValueAtTime(note.note.frequency, startTime);
+          oscillator.type = 'sine';
+          
+          gainNode.gain.setValueAtTime(0, startTime);
+          gainNode.gain.linearRampToValueAtTime(0.3, startTime + 0.1);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + note.duration / 1000);
+          
+          oscillator.connect(gainNode);
+          gainNode.connect(this.audioContext.destination);
+          
+          oscillator.start(startTime);
+          oscillator.stop(startTime + note.duration / 1000);
+          
+          startTime += note.duration / 1000;
+        });
+      });
+      
+      this.isPlaying = true;
+      console.log('🎵 생성된 음악 재생 시작');
+      
+      return true;
+    } catch (error) {
+      console.error('음악 재생 중 오류:', error);
+      return false;
+    }
+  }
+
+  // 현재 음악 정지
+  stopCurrentMusic() {
+    this.oscillators.forEach(osc => {
+      try {
+        osc.stop();
+      } catch {
+        // 이미 정지된 oscillator 무시
+      }
+    });
+    this.oscillators = [];
+    this.isPlaying = false;
+  }
+
+  // 리소스 정리
+  cleanup() {
+    this.stopCurrentMusic();
+    if (this.audioContext) {
+      this.audioContext.close();
+    }
+    this.initialized = false;
+  }
 }
 
-// 음악 생성 유틸리티 함수들
-export const MusicUtils = {
-  // 음표를 주파수로 변환
-  noteToFrequency(note, octave = 4) {
-    const noteMap = {
-      'C': 0, 'C#': 1, 'Db': 1, 'D': 2, 'D#': 3, 'Eb': 3,
-      'E': 4, 'F': 5, 'F#': 6, 'Gb': 6, 'G': 7, 'G#': 8,
-      'Ab': 8, 'A': 9, 'A#': 10, 'Bb': 10, 'B': 11
-    };
-    
-    const noteNumber = noteMap[note];
-    if (noteNumber === undefined) return 440; // A4 기본값
-    
-    // A4 = 440Hz를 기준으로 계산
-    const A4 = 440;
-    const semitoneRatio = Math.pow(2, 1/12);
-    const semitonesFromA4 = (octave - 4) * 12 + (noteNumber - 9);
-    
-    return A4 * Math.pow(semitoneRatio, semitonesFromA4);
-  },
-
-  // BPM을 ms로 변환
-  bpmToMs(bpm, noteValue = 4) {
-    return (60000 / bpm) * (4 / noteValue);
-  },
-
-  // 스케일 생성
-  generateScale(rootNote, scaleType, octave = 4) {
-    const scales = {
-      major: [0, 2, 4, 5, 7, 9, 11],
-      minor: [0, 2, 3, 5, 7, 8, 10],
-      pentatonic: [0, 2, 4, 7, 9]
-    };
-    
-    const intervals = scales[scaleType] || scales.major;
-    const rootFreq = this.noteToFrequency(rootNote, octave);
-    
-    return intervals.map(interval => {
-      const semitoneRatio = Math.pow(2, 1/12);
-      return rootFreq * Math.pow(semitoneRatio, interval);
-    });
-  }
-};
-
-export default MusicUtils;
