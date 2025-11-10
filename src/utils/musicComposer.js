@@ -1,5 +1,5 @@
 // 음악 생성 엔진 확장 - 코드 진행, 멜로디, 리듬 생성
-import { MusicUtils } from './musicGenerationEngine.js';
+import { MusicUtils } from './musicUtils.js';
 
 export class MusicComposer {
   constructor(engine) {
